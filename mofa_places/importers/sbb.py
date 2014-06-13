@@ -19,7 +19,7 @@ def dict_factory(cursor, row):
     return d
 
 
-class SBBStationImporter(object):
+class SbbStationImporter(object):
     def __init__(self, indexer, precedence, sbb_db, areas, identifier_key='identifiers'):
         self.indexer = indexer
         self.precedence = precedence
@@ -28,7 +28,7 @@ class SBBStationImporter(object):
         self.identifier_key = identifier_key
 
     def run(self):
-        conn = sqlite3.connect('/home/tom/moxie/bin/example.db')
+        conn = sqlite3.connect(self.sbb_db)
         conn.row_factory = dict_factory
         db = conn.cursor()
         if self.indexer:
@@ -61,11 +61,11 @@ def main():
     db = '/home/tom/moxie/bin/example.db'
     from moxie.core.search import SearchService
     indexer = SearchService('solr+http://localhost:8983/solr/#/places')
-    naptan_importer = SBBImporter(indexer, 10, db, ['340'], 'identifiers')
-    naptan_importer.run()
+    sbb_importer = SBBImporter(indexer, 10, db, ['340'], 'identifiers')
+    sbb_importer.run()
     import pprint
-    pprint.pprint(naptan_importer.handler.stop_points)
-    pprint.pprint(naptan_importer.handler.stop_areas)
+    pprint.pprint(sbb_importer.handler.stop_points)
+    pprint.pprint(sbb_importer.handler.stop_areas)
 
 
 if __name__ == '__main__':

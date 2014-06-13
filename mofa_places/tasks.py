@@ -36,7 +36,7 @@ def import_all(force_update_all=False):
             logger.info("Deleted all documents from staging, launching importers")
             # Using a chain (seq) so tasks execute in order
             res = chain(import_osm.s(force_update=force_update_all),
-                         import_sbb.s(force_update=force_update_all),
+                         import_sbb_stations.s(force_update=force_update_all),
                          import_swiss_library_data.s(force_update=force_update_all))()
             res.get() # Get will block until all tasks complete
             if all([r[1] for r in res.collect()]):    # if all results are True
@@ -54,13 +54,18 @@ def import_all(force_update_all=False):
 
 
 @celery.task
-def import_sbb(previous_result=None, url=None, force_update=False):
+def import_sbb_stations(previous_result=None, url=None, force_update=False):
     if previous_result not in [None, True]:
         return False
     app = create_app()
     with app.blueprint_context(BLUEPRINT_NAME):
-
-        if False:
+        url = url or app.config['SBB_IMPORT_URL']
+        db = get_resource(url, force_update)
+        if db:
+            sbb_importer = SbbStationImporter(searcher, 10, db, ['340'], 'identifiers')
+            sbb_importer.run()
+        else:
+            logger.info("Naptan hasn't been imported - resource not loaded")
             return False
     return True
 
@@ -70,9 +75,8 @@ def import_swiss_library_data(previous_result=None, url=None, force_update=False
     if previous_result not in [None, True]:
         return False
     app = create_app()
-    RDF_MEDIA_TYPE = 'text/turtle'  # default RDF serialization
     with app.blueprint_context(BLUEPRINT_NAME):
-        url = url or app.config['OXPOINTS_IMPORT_URL']
+        url = url or app.config['SWISS_LIBRARY_IMPORT_URL']
         oxpoints = get_resource(url, force_update, media_type=RDF_MEDIA_TYPE)
         if oxpoints:
             logger.info("OxPoints Downloaded - Stored here: %s" % oxpoints)
