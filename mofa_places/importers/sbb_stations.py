@@ -41,12 +41,12 @@ class Polygon(object):
         py = point['y']
 
         inPolygon = False
-        j = len(vertices) - 1
-        for i, v in enumerate(vertices):
+        j = len(self.vertices) - 1
+        for i, v in enumerate(self.vertices):
             v1x = v['x']
             v1y = v['y']
-            v2x = vertices[j]['x']
-            v2y = vertices[j]['y']
+            v2x = self.vertices[j]['x']
+            v2y = self.vertices[j]['y']
 
             if (((v1y > py) != (v2y > py)) and (px < (v2x - v1x) * (py - v1y) / (v2y - v1y) + v1x)):
                 inPolygon = not inPolygon
@@ -133,12 +133,13 @@ class Stations(object):
             cacheFile = input_ + '.html'
 
         # TODO: stationCacheFolder - global scope ?
+        # XXX generate directories 
         stationCacheFolder = os.path.join(self.basedir, "tmp", "cache", "station")
         stationCacheFile = os.path.join(stationCacheFolder, cacheFile)
 
         def fetchSBBStation(input_, cacheFile, ignoreAmbigous):
-            sbbURL = "http://fahrplan.sbb.ch/bin/bhftafel.exe/dn?distance=50&input=" + cgi.escape(input_) + "&near=Anzeigen"
-              # p "Fetching " + sbbURL
+            sbbURL = "http://fahrplan.sbb.ch/bin/stboard.exe/dn?distance=50&input=" + cgi.escape(input_) + "&near=Anzeigen"
+            #print("Fetching ", sbbURL)
             r = requests.get(sbbURL)
             sbbHTML = (r.text)
             time.sleep(0.1)
@@ -202,12 +203,13 @@ class Stations(object):
 
         for r in rows:
             if not chPolygon.contains_point({'x': r['x'], 'y': r['y']}):
-                sql = "DELETE FROM station WHERE id = " + r['id']
+                sql = "DELETE FROM station WHERE id = " + str(r['id'])
                 self.db.execute(sql)
         self.conn.commit()
 
 
 def main():
+    # XXX if it is there 
     os.remove('example.db')
     s = Stations()
     s.fetch()
