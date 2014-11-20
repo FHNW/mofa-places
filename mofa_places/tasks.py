@@ -35,9 +35,10 @@ def import_all(force_update_all=False):
         if delete_response.ok and commit_response.ok:
             logger.info("Deleted all documents from staging, launching importers")
             # Using a chain (seq) so tasks execute in order
-            res = chain(import_osm.s(force_update=force_update_all),
+            res = chain( #import_osm.s(force_update=force_update_all),
                          import_sbb_stations.s(force_update=force_update_all),
-                         import_swiss_library_data.s(force_update=force_update_all))()
+                        #  import_swiss_library_data.s(force_update=force_update_all)
+)()
             res.get() # Get will block until all tasks complete
             if all([r[1] for r in res.collect()]):    # if all results are True
                 swap_response = requests.get("{server}/admin/cores?action=SWAP&core={new}&other={old}".format(server=solr_server,
@@ -65,7 +66,7 @@ def import_sbb_stations(previous_result=None, url=None, force_update=False):
             sbb_importer = SbbStationImporter(searcher, 10, db, ['340'], 'identifiers')
             sbb_importer.run()
         else:
-            logger.info("Naptan hasn't been imported - resource not loaded")
+            logger.info("SBB hasn't been imported - resource not loaded")
             return False
     return True
 

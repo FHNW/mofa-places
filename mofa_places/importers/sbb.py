@@ -58,10 +58,10 @@ def main():
     import argparse
     args = argparse.ArgumentParser()
     #args.add_argument('naptanfile', type=argparse.FileType('r'))
-    db = '/home/tom/moxie/bin/example.db'
+    db = 'example.db'
     from moxie.core.search import SearchService
-    indexer = SearchService('solr+http://localhost:8983/solr/#/places')
-    sbb_importer = SBBImporter(indexer, 10, db, ['340'], 'identifiers')
+    indexer = SearchService('solr+http://localhost:8080/solr/places')
+    sbb_importer = SbbStationImporter(indexer, 10, db, ['340'], 'identifiers')
     sbb_importer.run()
     import pprint
     pprint.pprint(sbb_importer.handler.stop_points)
