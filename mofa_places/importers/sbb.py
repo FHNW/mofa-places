@@ -46,10 +46,6 @@ class SbbStationImporter(object):
                 search_results = self.indexer.search_for_ids(
                     self.identifier_key, data[self.identifier_key])
                 docs.append(prepare_document(data, search_results, self.precedence))
-            for atco_code, sp in self.handler.stop_points.items():
-                search_results = self.indexer.search_for_ids(
-                    self.identifier_key, sp[self.identifier_key])
-                docs.append(prepare_document(sp, search_results, self.precedence))
             self.indexer.index(docs)
             self.indexer.commit()
 
@@ -57,15 +53,11 @@ class SbbStationImporter(object):
 def main():
     import argparse
     args = argparse.ArgumentParser()
-    #args.add_argument('naptanfile', type=argparse.FileType('r'))
     db = 'example.db'
     from moxie.core.search import SearchService
     indexer = SearchService('solr+http://localhost:8080/solr/places')
-    sbb_importer = SbbStationImporter(indexer, 10, db, ['340'], 'identifiers')
+    sbb_importer = SbbStationImporter(None, 10, db, ['340'], 'identifiers')
     sbb_importer.run()
-    import pprint
-    pprint.pprint(sbb_importer.handler.stop_points)
-    pprint.pprint(sbb_importer.handler.stop_areas)
 
 
 if __name__ == '__main__':
