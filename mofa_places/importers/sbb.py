@@ -33,21 +33,26 @@ class SbbStationImporter(object):
         db = conn.cursor()
         if self.indexer:
             docs = []
-
             sql = "SELECT * FROM station"
-            for row in db.execute(sql).fetchall():
+            for i, row in enumerate(db.execute(sql).fetchall()):
                 data = {}
                 data['id'] = "stoparea:%s" % str(row['id'])
                 data[self.identifier_key] = [str(row['id'])]
                 data['location'] = "%s,%s" % (row['x'], row['y'])
                 data['name'] = row['name']
                 data['name_sort'] = row['name']
-                data['type'] = "/transport/stop-area"
+                data['type'] = "/transport/rail-station"
+                data['tags'] = []
                 search_results = self.indexer.search_for_ids(
                     self.identifier_key, data[self.identifier_key])
                 docs.append(prepare_document(data, search_results, self.precedence))
+                if not (i + 1) % 400:
+                    self.indexer.index(docs)
+                    self.indexer.commit()
+                    docs = []
             self.indexer.index(docs)
             self.indexer.commit()
+
 
 
 def main():
