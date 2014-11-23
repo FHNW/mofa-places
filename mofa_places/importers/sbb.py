@@ -37,7 +37,7 @@ class SbbStationImporter(object):
             for i, row in enumerate(db.execute(sql).fetchall()):
                 data = {}
                 data['id'] = "stoparea:%s" % str(row['id'])
-                data[self.identifier_key] = [str(row['id'])]
+                data[self.identifier_key] = [str(row['id']), 'sbb:%s' % row['id']]
                 data['location'] = "%s,%s" % (row['x'], row['y'])
                 data['name'] = row['name']
                 data['name_sort'] = row['name']
