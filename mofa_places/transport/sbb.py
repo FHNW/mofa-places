@@ -33,9 +33,6 @@ class SbbRtiProvider(TransportRTIProvider):
             return False
         for ident in doc.identifiers:
             if ident.startswith('sbb'):
-                import inspect
-                import sys
-                print >> sys.stderr, inspect.stack()
                 return True
         return False
 
